@@ -2205,6 +2205,12 @@ function selectVehicle(index) {
   var vehicle = allVehicles[index];
   if (!vehicle) return;
 
+  var monthSelectEl = document.getElementById("vehicleMonthFilterSelect");
+  var preservedMonth = monthSelectEl ? monthSelectEl.value : vehicleSelectedFilterMonth;
+  if (!preservedMonth) {
+    preservedMonth = "all";
+  }
+
   selectedVehicle = vehicle;
   localStorage.setItem(VEHICLE_LOCAL_STORAGE_KEY, vehicle.key);
   document.getElementById("vehicleSearch").value = vehicle.primaryLabel;
@@ -2212,15 +2218,21 @@ function selectVehicle(index) {
   document.getElementById("vehicleInitialState").style.display = "none";
   document.getElementById("vehicleMainDashboard").style.display = "flex";
 
-  vehicleSelectedFilterMonth = "all";
-  document.getElementById("vehicleMonthFilterSelect").value = "all";
+  vehicleSelectedFilterMonth = preservedMonth;
+  if (monthSelectEl) {
+    monthSelectEl.value = preservedMonth;
+  }
 
   var entries = getVehicleScheduleEntries();
   if (entries.length > 0) {
-    vehicleCalendarDisplayDate = new Date(entries[0].dateObj.getFullYear(), entries[0].dateObj.getMonth(), 1);
+    if (vehicleSelectedFilterMonth !== "all") {
+      vehicleCalendarDisplayDate = new Date(entries[0].dateObj.getFullYear(), parseInt(vehicleSelectedFilterMonth, 10), 1);
+    } else {
+      vehicleCalendarDisplayDate = new Date(entries[0].dateObj.getFullYear(), entries[0].dateObj.getMonth(), 1);
+    }
   }
 
-  setVehicleView("list");
+  setVehicleView(vehicleCurrentView);
   updateVehicleDashboardData();
 }
 
