@@ -805,6 +805,66 @@ header {
   min-height: 50px;
 }
 
+.production-day-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.production-list-section {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.9rem;
+}
+
+.production-list-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.55rem;
+}
+
+.production-list {
+  margin: 0;
+  padding-left: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.production-list li {
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.production-inline-meta {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.production-password-input {
+  width: 100%;
+  background-color: var(--bg-secondary);
+  border: 1px solid #cbd5e1;
+  color: var(--text-primary);
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: 0.08em;
+  outline: none;
+}
+
+.production-password-input:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
 /* Modal Diálogo (Solo Lectura) */
 .modal-overlay {
   position: fixed;
@@ -1130,6 +1190,7 @@ footer {
       <div class="module-switcher-inner">
         <button class="view-btn active" id="btnPersonalModule" onclick="setModuleTab('personal')">Personal</button>
         <button class="view-btn" id="btnVehicleModule" onclick="setModuleTab('vehicles')">Vehículos</button>
+        <button class="view-btn" id="btnProductionModule" onclick="setModuleTab('production')">Producción</button>
       </div>
     </section>
 
@@ -1443,6 +1504,49 @@ footer {
       </div>
     </div>
 
+    <div id="productionModulePanel" class="module-panel" style="display:none;">
+      <section class="main-card">
+        <div class="calendar-container">
+          <div class="calendar-header">
+            <div class="month-selector" style="display: flex; align-items: center; gap: 0.5rem; background: #f1f5f9; padding: 0.25rem; border-radius: 8px;">
+              <button class="nav-btn" onclick="changeProductionCalendarMonth(-1)" style="border:none; background:transparent; cursor:pointer; padding:0.25rem; display:flex; align-items:center;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="width:1rem; height:1rem; color:var(--text-secondary);">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <span class="month-label-display" id="productionCalendarMonthLabel" style="min-width: 120px; text-align: center; font-size:0.9rem;">Enero 2026</span>
+              <button class="nav-btn" onclick="changeProductionCalendarMonth(1)" style="border:none; background:transparent; cursor:pointer; padding:0.25rem; display:flex; align-items:center;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="width:1rem; height:1rem; color:var(--text-secondary);">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+
+            <div class="calendar-legend">
+              <div class="legend-item"><div class="legend-dot trabajo"></div>Con actividad</div>
+              <div class="legend-item"><div class="legend-dot libre"></div>Sin actividad</div>
+            </div>
+          </div>
+
+          <div class="calendar-grid" id="productionCalendarGrid">
+            <div class="weekday-header">Lun</div>
+            <div class="weekday-header">Mar</div>
+            <div class="weekday-header">Mié</div>
+            <div class="weekday-header">Jue</div>
+            <div class="weekday-header">Vie</div>
+            <div class="weekday-header">Sáb</div>
+            <div class="weekday-header">Dom</div>
+          </div>
+
+          <div class="day-detail-panel" id="productionCalendarDayDetails">
+            <span class="detail-panel-title">Asignaciones de Producción</span>
+            <div class="detail-panel-date" id="productionDetailDateDisplay">Selecciona un día del calendario</div>
+            <div class="detail-panel-content" id="productionDetailValueDisplay">Pulsa un día para ver personas y vehículos asignados con su ubicación.</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
   </main>
 
   <!-- Pie de página -->
@@ -1477,6 +1581,33 @@ footer {
     </div>
   </div>
 
+  <div class="modal-overlay" id="productionAccessModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">
+          <h3>Acceso a Producción</h3>
+          <p>Introduce la contraseña para continuar</p>
+        </div>
+        <button class="close-btn" onclick="closeProductionAccessModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <span class="form-label">Contraseña</span>
+          <input type="password" id="productionPasswordInput" class="production-password-input" placeholder="••••" autocomplete="off">
+        </div>
+
+        <div class="form-actions" style="margin-top: 1.5rem; display: flex; gap: 0.75rem;">
+          <button type="button" class="btn-primary" style="flex:1; background:#0f172a;" onclick="closeProductionAccessModal()">Cancelar</button>
+          <button type="button" class="btn-primary" style="flex:1;" onclick="submitProductionAccess()">Entrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Contenedor para notificaciones Toast -->
   <div class="toast-container" id="toastContainer"></div>
 
@@ -1502,6 +1633,11 @@ var selectedFilterMonth = "all";
 var vehicleSelectedFilterMonth = "all";
 var activeModule = "personal";
 var vehicleCurrentView = "list";
+var productionUnlocked = false;
+var PRODUCTION_PASSWORD = "666";
+var productionCalendarDisplayDate = new Date(2026, 0, 1);
+var productionSelectedDateISO = "";
+var productionIndexByDate = {};
 
 // Fecha seleccionada para visualización en el calendario
 var calendarDisplayDate = new Date(2026, 0, 1); // 1 de Enero de 2026
@@ -1563,6 +1699,12 @@ document.addEventListener("DOMContentLoaded", function() {
           break;
         }
       }
+    }
+  });
+
+  document.getElementById("productionPasswordInput").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+      submitProductionAccess();
     }
   });
 });
@@ -1833,6 +1975,11 @@ function loadVehiclesFromDrive() {
             selectVehicle(idx);
           }
         }
+      }
+
+      rebuildProductionIndex();
+      if (activeModule === "production") {
+        renderProductionCalendar();
       }
     })
     .catch(function(error) {
@@ -2453,6 +2600,7 @@ function onDataLoaded(response) {
   allWorkers = response.workers;
   allShifts = response.shifts;
   workerStats = response.workerStats;
+  rebuildProductionIndex();
   
   // Ajustar fecha del calendario basada en el primer turno disponible
   if (allShifts.length > 0) {
@@ -2524,36 +2672,314 @@ function workerExists(name) {
 }
 
 function setModuleTab(moduleType) {
-  activeModule = moduleType === "vehicles" ? "vehicles" : "personal";
+  if (moduleType === "production" && !productionUnlocked) {
+    openProductionAccessModal();
+    return;
+  }
+
+  if (moduleType === "vehicles") {
+    activeModule = "vehicles";
+  } else if (moduleType === "production") {
+    activeModule = "production";
+  } else {
+    activeModule = "personal";
+  }
 
   var moduleMainTitle = document.getElementById("moduleMainTitle");
   var btnPersonal = document.getElementById("btnPersonalModule");
   var btnVehicle = document.getElementById("btnVehicleModule");
+  var btnProduction = document.getElementById("btnProductionModule");
   var personalPanel = document.getElementById("personalModulePanel");
   var vehiclePanel = document.getElementById("vehicleModulePanel");
+  var productionPanel = document.getElementById("productionModulePanel");
   var personalViewControls = document.getElementById("viewControls");
 
   if (activeModule === "personal") {
     moduleMainTitle.innerText = "🔍 Buscador de perosnal TUA";
     btnPersonal.classList.add("active");
     btnVehicle.classList.remove("active");
+    btnProduction.classList.remove("active");
     personalPanel.style.display = "block";
     vehiclePanel.style.display = "none";
+    productionPanel.style.display = "none";
     personalViewControls.style.display = selectedWorker ? "flex" : "none";
     if (currentView === "calendar") {
       renderCalendar();
     }
-  } else {
+  } else if (activeModule === "vehicles") {
     moduleMainTitle.innerText = "🚚 Buscador de Vehículos 2026";
     btnPersonal.classList.remove("active");
     btnVehicle.classList.add("active");
+    btnProduction.classList.remove("active");
     personalPanel.style.display = "none";
     vehiclePanel.style.display = "block";
+    productionPanel.style.display = "none";
     personalViewControls.style.display = "none";
     if (selectedVehicle && vehicleCurrentView === "calendar") {
       renderVehicleCalendar();
     }
+  } else {
+    moduleMainTitle.innerText = "🏭 Producción 2026";
+    btnPersonal.classList.remove("active");
+    btnVehicle.classList.remove("active");
+    btnProduction.classList.add("active");
+    personalPanel.style.display = "none";
+    vehiclePanel.style.display = "none";
+    productionPanel.style.display = "block";
+    personalViewControls.style.display = "none";
+    renderProductionCalendar();
   }
+}
+
+function openProductionAccessModal() {
+  var modal = document.getElementById("productionAccessModal");
+  var input = document.getElementById("productionPasswordInput");
+  input.value = "";
+  modal.classList.add("open");
+  setTimeout(function() {
+    input.focus();
+  }, 10);
+}
+
+function closeProductionAccessModal() {
+  var modal = document.getElementById("productionAccessModal");
+  modal.classList.remove("open");
+}
+
+function submitProductionAccess() {
+  var input = document.getElementById("productionPasswordInput");
+  if ((input.value || "").trim() !== PRODUCTION_PASSWORD) {
+    showToast("Contraseña incorrecta para Producción", "error");
+    input.value = "";
+    input.focus();
+    return;
+  }
+
+  productionUnlocked = true;
+  closeProductionAccessModal();
+  showToast("Acceso a Producción concedido", "success");
+  setModuleTab("production");
+}
+
+function isMeaningfulAssignment(value) {
+  var raw = String(value || "").trim();
+  if (!raw) return false;
+
+  var normalized = normalizeText(raw);
+  if (!normalized || normalized === "." || normalized === "sin asignar") {
+    return false;
+  }
+
+  return true;
+}
+
+function getProductionLocationLabel(assignmentText) {
+  var raw = String(assignmentText || "").trim();
+  if (!raw) return "Sin ubicación";
+
+  var normalized = normalizeText(raw);
+  if (normalized.indexOf("nave") > -1) return "Nave";
+  if (normalized.indexOf("teatro") > -1) return "Teatro";
+  if (normalized.indexOf("viaje") > -1) return "Viaje";
+  if (normalized.indexOf("vuelta") > -1) return "Vuelta";
+  if (normalized.indexOf("libre") > -1 || normalized.indexOf("off") > -1) return "Libre";
+
+  return raw;
+}
+
+function rebuildProductionIndex() {
+  var index = {};
+
+  allShifts.forEach(function(shiftObj) {
+    var parsedDate = parseDateString(shiftObj.date);
+    if (!parsedDate) return;
+
+    var iso = formatDateISO(parsedDate);
+    if (!index[iso]) {
+      index[iso] = { people: [], vehicles: [] };
+    }
+
+    var workerMap = shiftObj.workerShifts || {};
+    Object.keys(workerMap).forEach(function(workerName) {
+      var assignment = (workerMap[workerName] || "").trim();
+      if (!isMeaningfulAssignment(assignment)) return;
+
+      index[iso].people.push({
+        name: workerName,
+        assignment: assignment,
+        location: getProductionLocationLabel(assignment)
+      });
+    });
+  });
+
+  allVehicles.forEach(function(vehicle) {
+    var record = vehicle && vehicle.record ? vehicle.record : {};
+    Object.keys(record).forEach(function(recordKey) {
+      var parsedDate = parseVehicleDateKey(recordKey);
+      if (!parsedDate || isNaN(parsedDate.getTime())) return;
+
+      var assignment = String(record[recordKey] || "").trim();
+      if (!isMeaningfulAssignment(assignment)) return;
+
+      var iso = formatDateISO(parsedDate);
+      if (!index[iso]) {
+        index[iso] = { people: [], vehicles: [] };
+      }
+
+      index[iso].vehicles.push({
+        name: vehicle.secondaryLabel ? (vehicle.primaryLabel + " — " + vehicle.secondaryLabel) : vehicle.primaryLabel,
+        assignment: assignment,
+        location: getProductionLocationLabel(assignment)
+      });
+    });
+  });
+
+  Object.keys(index).forEach(function(iso) {
+    index[iso].people.sort(function(a, b) {
+      return a.name.localeCompare(b.name, "es");
+    });
+    index[iso].vehicles.sort(function(a, b) {
+      return a.name.localeCompare(b.name, "es");
+    });
+  });
+
+  productionIndexByDate = index;
+}
+
+function getProductionDataForISO(isoDate) {
+  return productionIndexByDate[isoDate] || { people: [], vehicles: [] };
+}
+
+function getProductionDataForDate(dateObj) {
+  return getProductionDataForISO(formatDateISO(dateObj));
+}
+
+function changeProductionCalendarMonth(direction) {
+  productionCalendarDisplayDate.setMonth(productionCalendarDisplayDate.getMonth() + direction);
+  renderProductionCalendar();
+}
+
+function renderProductionCalendar() {
+  if (activeModule !== "production") return;
+
+  var grid = document.getElementById("productionCalendarGrid");
+  var headersCount = 7;
+  while (grid.children.length > headersCount) {
+    grid.removeChild(grid.lastChild);
+  }
+
+  var year = productionCalendarDisplayDate.getFullYear();
+  var month = productionCalendarDisplayDate.getMonth();
+  document.getElementById("productionCalendarMonthLabel").innerText = MONTH_NAMES[month] + " " + year;
+
+  var firstDay = new Date(year, month, 1);
+  var startingDayIndex = (firstDay.getDay() + 6) % 7;
+  var totalDays = new Date(year, month + 1, 0).getDate();
+
+  for (var i = 0; i < startingDayIndex; i++) {
+    var emptyCell = document.createElement("div");
+    emptyCell.className = "calendar-day empty";
+    grid.appendChild(emptyCell);
+  }
+
+  var today = new Date();
+  var defaultSelectedCell = null;
+  var defaultSelectedDate = null;
+
+  for (var day = 1; day <= totalDays; day++) {
+    var currentDate = new Date(year, month, day);
+    var dayCell = document.createElement("div");
+    dayCell.className = "calendar-day";
+
+    var isToday = currentDate.getDate() === today.getDate() && currentDate.getMonth() === today.getMonth() && currentDate.getFullYear() === today.getFullYear();
+    if (isToday) {
+      dayCell.classList.add("today");
+    }
+
+    var numSpan = document.createElement("span");
+    numSpan.className = "day-num";
+    numSpan.innerText = day;
+    dayCell.appendChild(numSpan);
+
+    var productionData = getProductionDataForDate(currentDate);
+    var totalAssignments = productionData.people.length + productionData.vehicles.length;
+    var category = totalAssignments > 0 ? "trabajo" : "sin-asignar";
+    var label = totalAssignments > 0 ? (totalAssignments + " asign.") : "Sin actividad";
+
+    var textEl = document.createElement("div");
+    textEl.className = "day-shift-text " + getCategoryBadgeClass(category);
+    textEl.innerText = label;
+    dayCell.appendChild(textEl);
+
+    var dotsContainer = document.createElement("div");
+    dotsContainer.className = "day-dots-container";
+    var dot = document.createElement("div");
+    dot.className = "day-dot";
+    dot.style.backgroundColor = getDotColorHex(category);
+    dotsContainer.appendChild(dot);
+    dayCell.appendChild(dotsContainer);
+
+    if (isToday || (!defaultSelectedDate && day === 1)) {
+      defaultSelectedCell = dayCell;
+      defaultSelectedDate = new Date(currentDate);
+    }
+
+    (function(cell, dateObj) {
+      cell.onclick = function() {
+        selectProductionCalendarDay(dateObj, cell);
+      };
+    })(dayCell, new Date(currentDate));
+
+    grid.appendChild(dayCell);
+  }
+
+  if (defaultSelectedCell) {
+    selectProductionCalendarDay(defaultSelectedDate, defaultSelectedCell);
+  }
+}
+
+function selectProductionCalendarDay(dateObj, cellElement) {
+  var cells = document.querySelectorAll("#productionCalendarGrid .calendar-day");
+  cells.forEach(function(c) {
+    c.classList.remove("active-selected");
+  });
+
+  cellElement.classList.add("active-selected");
+  productionSelectedDateISO = formatDateISO(dateObj);
+
+  var options = { weekday: "long", day: "numeric", month: "long", year: "numeric" };
+  document.getElementById("productionDetailDateDisplay").innerText = dateObj.toLocaleDateString("es-ES", options);
+
+  var data = getProductionDataForISO(productionSelectedDateISO);
+  var contentEl = document.getElementById("productionDetailValueDisplay");
+
+  var peopleHtml = "";
+  if (data.people.length === 0) {
+    peopleHtml = "<div class=\"production-inline-meta\">Sin personal asignado.</div>";
+  } else {
+    peopleHtml = "<ol class=\"production-list\">" + data.people.map(function(item) {
+      return "<li><strong>" + escapeHtml(item.name) + "</strong> <span class=\"production-inline-meta\">(" + escapeHtml(item.location) + ")</span><br><span class=\"production-inline-meta\">" + escapeHtml(item.assignment) + "</span></li>";
+    }).join("") + "</ol>";
+  }
+
+  var vehiclesHtml = "";
+  if (data.vehicles.length === 0) {
+    vehiclesHtml = "<div class=\"production-inline-meta\">Sin vehículos asignados.</div>";
+  } else {
+    vehiclesHtml = "<ol class=\"production-list\">" + data.vehicles.map(function(item) {
+      return "<li><strong>" + escapeHtml(item.name) + "</strong> <span class=\"production-inline-meta\">(" + escapeHtml(item.location) + ")</span><br><span class=\"production-inline-meta\">" + escapeHtml(item.assignment) + "</span></li>";
+    }).join("") + "</ol>";
+  }
+
+  contentEl.innerHTML = "" +
+    "<div class=\"production-day-summary\">" +
+      "<div class=\"production-list-section\">" +
+        "<div class=\"production-list-title\">Personas asignadas</div>" + peopleHtml +
+      "</div>" +
+      "<div class=\"production-list-section\">" +
+        "<div class=\"production-list-title\">Vehículos asignados</div>" + vehiclesHtml +
+      "</div>" +
+    "</div>";
 }
 
 function getShiftValueForSelectedWorker(shiftObj) {
