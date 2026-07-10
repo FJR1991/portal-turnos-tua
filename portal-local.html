@@ -1532,13 +1532,8 @@ document.addEventListener("DOMContentLoaded", function() {
     loadDataFromLocalMock();
   }
 
-  if (hasDriveDataSource() || !window.portalDataEmbedded) {
-    startAutoRefresh();
-  }
-
-  if (!window.portalDataEmbedded && !hasDriveDataSource()) {
-    startLiveUpdates();
-  }
+  // Actualización manual: se desactiva cualquier refresco automático.
+  stopAutomaticRefresh();
 
   loadVehiclesModule();
   setModuleTab("personal");
@@ -2412,38 +2407,24 @@ function loadEmbeddedData() {
   return false;
 }
 
-function startAutoRefresh() {
+function stopAutomaticRefresh() {
   if (dataRefreshTimer) {
     clearInterval(dataRefreshTimer);
-  }
-
-  dataRefreshTimer = setInterval(function() {
-    refreshDataFromSource();
-  }, 5000);
-}
-
-function startLiveUpdates() {
-  if (window.portalDataEmbedded || hasDriveDataSource()) {
-    return;
+    dataRefreshTimer = null;
   }
 
   if (dataEventSource) {
     dataEventSource.close();
+    dataEventSource = null;
   }
+}
 
-  try {
-    dataEventSource = new EventSource('http://127.0.0.1:8000/events');
-    dataEventSource.onmessage = function() {
-      refreshDataFromSource();
-    };
-    dataEventSource.onerror = function() {
-      if (dataEventSource) {
-        dataEventSource.close();
-      }
-    };
-  } catch (error) {
-    console.warn('No se pudo abrir el canal de eventos:', error);
-  }
+function startAutoRefresh() {
+  stopAutomaticRefresh();
+}
+
+function startLiveUpdates() {
+  stopAutomaticRefresh();
 }
 
 /**
