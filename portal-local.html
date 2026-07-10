@@ -178,6 +178,25 @@ header {
   box-shadow: var(--shadow-sm);
 }
 
+.module-switcher {
+  display: flex;
+  justify-content: center;
+}
+
+.module-switcher-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: #f1f5f9;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.25rem;
+}
+
+.module-panel {
+  width: 100%;
+}
+
 /* App Container */
 .app-container {
   max-width: 1200px;
@@ -289,6 +308,65 @@ header {
   color: var(--text-muted);
   margin-top: 0.5rem;
   text-align: center;
+}
+
+/* Módulo de Vehículos (independiente del módulo de personal) */
+.vehicle-module {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.vehicle-module-title {
+  margin: 0;
+  font-family: var(--font-title);
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.vehicle-empty-state {
+  background: var(--bg-tertiary);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.vehicle-result-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.vehicle-detail-item {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.75rem;
+}
+
+.vehicle-detail-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.vehicle-detail-value {
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 /* Dropdown Autocomplete de Ancho Completo */
@@ -976,6 +1054,10 @@ footer {
     align-self: center;
     font-size: 0.85rem;
   }
+
+  .vehicle-result-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1044,31 +1126,43 @@ footer {
   <!-- Contenedor Principal -->
   <main class="app-container">
 
-    <!-- Buscador Superior Centrado -->
-    <section class="search-section">
-      <h2 class="search-title">🔍 Buscador de Planificación 2026</h2>
-      <div class="search-wrapper">
-        <input type="text" id="workerSearch" class="search-input" placeholder="Introduce tu nombre aquí..." autocomplete="off" onfocus="showAutocomplete()" oninput="filterAutocomplete()">
-        <div id="autocompleteDropdown" class="autocomplete-dropdown">
-          <!-- Opciones cargadas dinámicamente -->
+    <section class="module-switcher">
+      <div class="module-switcher-inner">
+        <button class="view-btn active" id="btnPersonalModule" onclick="setModuleTab('personal')">Personal</button>
+        <button class="view-btn" id="btnVehicleModule" onclick="setModuleTab('vehicles')">Vehículos</button>
+      </div>
+    </section>
+
+    <h2 class="search-title" id="moduleMainTitle" style="justify-content:center; margin-top:0.25rem; margin-bottom:0.75rem;">
+      🔍 Buscador de perosnal TUA
+    </h2>
+
+    <div id="personalModulePanel" class="module-panel">
+
+      <!-- Buscador Superior Centrado -->
+      <section class="search-section">
+        <div class="search-wrapper">
+          <input type="text" id="workerSearch" class="search-input" placeholder="Introduce tu nombre aquí..." autocomplete="off" onfocus="showAutocomplete()" oninput="filterAutocomplete()">
+          <div id="autocompleteDropdown" class="autocomplete-dropdown">
+            <!-- Opciones cargadas dinámicamente -->
+          </div>
         </div>
-      </div>
-      <p class="search-subtext">Empieza a escribir para ver sugerencias, elige tu nombre y pulsa Enter.</p>
-    </section>
+        <p class="search-subtext">Empieza a escribir para ver sugerencias, elige tu nombre y pulsa Enter.</p>
+      </section>
 
-    <!-- Estado Inicial (Sin Selección) -->
-    <section id="initialState" class="empty-state glass" style="border-radius: var(--radius-lg); background: #ffffff;">
-      <div class="empty-icon" style="background: #f1f5f9;">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-        </svg>
-      </div>
-      <h3>Ningún trabajador seleccionado</h3>
-      <p>Introduce tu nombre en la barra de búsqueda superior para consultar tus turnos correspondientes.</p>
-    </section>
+      <!-- Estado Inicial (Sin Selección) -->
+      <section id="initialState" class="empty-state glass" style="border-radius: var(--radius-lg); background: #ffffff;">
+        <div class="empty-icon" style="background: #f1f5f9;">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+        </div>
+        <h3>Ningún trabajador seleccionado</h3>
+        <p>Introduce tu nombre en la barra de búsqueda superior para consultar tus turnos correspondientes.</p>
+      </section>
 
-    <!-- Contenido Principal (Visible al seleccionar trabajador) -->
-    <div id="mainDashboard" style="display: none; flex-direction: column; gap: 2rem;">
+      <!-- Contenido Principal (Visible al seleccionar trabajador) -->
+      <div id="mainDashboard" style="display: none; flex-direction: column; gap: 2rem;">
       
       <!-- Bloque de Cabecera del Trabajador y Filtro de Mes -->
       <section class="worker-header-block">
@@ -1195,8 +1289,158 @@ footer {
           </div>
         </div>
 
+        </section>
+
+      </div>
+    </div>
+
+    <div id="vehicleModulePanel" class="module-panel" style="display:none;">
+      <section class="search-section">
+        <div class="search-wrapper vehicle-search-wrapper">
+          <input type="text" id="vehicleSearch" class="search-input" placeholder="Introduce matrícula, nombre o referencia..." autocomplete="off" onfocus="showVehicleAutocomplete()" oninput="filterVehicleAutocomplete()">
+          <div id="vehicleAutocompleteDropdown" class="autocomplete-dropdown"></div>
+        </div>
+        <p id="vehicleModuleStatus" class="search-subtext">Inicializando módulo de vehículos...</p>
       </section>
 
+      <section id="vehicleInitialState" class="empty-state glass" style="border-radius: var(--radius-lg); background: #ffffff;">
+        <div class="empty-icon" style="background: #f1f5f9;">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13l2-5h14l2 5M5 13v5a2 2 0 002 2h1a2 2 0 002-2v-1h4v1a2 2 0 002 2h1a2 2 0 002-2v-5M7 8l1.5-3h7L17 8" />
+          </svg>
+        </div>
+        <h3>Ningún vehículo seleccionado</h3>
+        <p>Busca una matrícula o referencia para consultar su planificación.</p>
+      </section>
+
+      <div id="vehicleMainDashboard" style="display:none; flex-direction: column; gap: 2rem;">
+        <section class="worker-header-block">
+          <div class="worker-title-row">
+            <h2 class="worker-selected-name" id="vehicleSelectedDisplay">VEHÍCULO</h2>
+
+            <select id="vehicleMonthFilterSelect" class="month-dropdown-select" onchange="onVehicleMonthFilterSelectChange()">
+              <option value="all">Todos los meses</option>
+              <option value="0">enero</option>
+              <option value="1">febrero</option>
+              <option value="2">marzo</option>
+              <option value="3">abril</option>
+              <option value="4">mayo</option>
+              <option value="5">junio</option>
+              <option value="6">julio</option>
+              <option value="7">agosto</option>
+              <option value="8">septiembre</option>
+              <option value="9">octubre</option>
+              <option value="10">noviembre</option>
+              <option value="11">diciembre</option>
+            </select>
+          </div>
+        </section>
+
+        <section class="stats-grid-3x2">
+          <div class="stat-card-white">
+            <span class="stat-card-value" id="vehicleStatLibres">0</span>
+            <span class="stat-card-label">Libres</span>
+          </div>
+          <div class="stat-card-white">
+            <span class="stat-card-value" id="vehicleStatVacaciones">0</span>
+            <span class="stat-card-label">Vacaciones</span>
+          </div>
+          <div class="stat-card-white">
+            <span class="stat-card-value" id="vehicleStatNave">0</span>
+            <span class="stat-card-label">Nave</span>
+          </div>
+          <div class="stat-card-white">
+            <span class="stat-card-value" id="vehicleStatTrabajo">0</span>
+            <span class="stat-card-label">Trabajo</span>
+          </div>
+          <div class="stat-card-white">
+            <span class="stat-card-value" id="vehicleStatBaja">0</span>
+            <span class="stat-card-label">Baja Médica</span>
+          </div>
+          <div class="stat-card-white">
+            <span class="stat-card-value" id="vehicleStatSinAsignar">0</span>
+            <span class="stat-card-label">Sin Asignar</span>
+          </div>
+        </section>
+
+        <section class="main-card">
+          <div class="view-controls" id="vehicleViewControls" style="display:flex; margin-bottom: 1rem; width: fit-content;">
+            <button class="view-btn active" id="btnVehicleListView" onclick="setVehicleView('list')">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+              Lista
+            </button>
+            <button class="view-btn" id="btnVehicleCalendarView" onclick="setVehicleView('calendar')">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              Calendario
+            </button>
+          </div>
+
+          <div id="vehicleListViewContainer" style="display: block;">
+            <div class="table-wrapper">
+              <table class="activity-table">
+                <thead>
+                  <tr>
+                    <th style="width: 15%">Fecha</th>
+                    <th style="width: 15%">Día</th>
+                    <th style="width: 50%">Actividad</th>
+                    <th style="width: 20%">Tipo</th>
+                  </tr>
+                </thead>
+                <tbody id="vehicleActivityTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="vehicleCalendarViewContainer" style="display: none;">
+            <div class="calendar-container">
+              <div class="calendar-header">
+                <div class="month-selector" style="display: flex; align-items: center; gap: 0.5rem; background: #f1f5f9; padding: 0.25rem; border-radius: 8px;">
+                  <button class="nav-btn" onclick="changeVehicleCalendarMonth(-1)" style="border:none; background:transparent; cursor:pointer; padding:0.25rem; display:flex; align-items:center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="width:1rem; height:1rem; color:var(--text-secondary);">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                  <span class="month-label-display" id="vehicleCalendarMonthLabel" style="min-width: 120px; text-align: center; font-size:0.9rem;">Enero 2026</span>
+                  <button class="nav-btn" onclick="changeVehicleCalendarMonth(1)" style="border:none; background:transparent; cursor:pointer; padding:0.25rem; display:flex; align-items:center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="width:1rem; height:1rem; color:var(--text-secondary);">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </div>
+
+                <div class="calendar-legend">
+                  <div class="legend-item"><div class="legend-dot libre"></div>Libre</div>
+                  <div class="legend-item"><div class="legend-dot vacaciones"></div>Vacaciones</div>
+                  <div class="legend-item"><div class="legend-dot nave"></div>Nave</div>
+                  <div class="legend-item"><div class="legend-dot trabajo"></div>Trabajo</div>
+                  <div class="legend-item"><div class="legend-dot baja"></div>Baja</div>
+                  <div class="legend-item"><div class="legend-dot otro"></div>Otro</div>
+                </div>
+              </div>
+
+              <div class="calendar-grid" id="vehicleCalendarGrid">
+                <div class="weekday-header">Lun</div>
+                <div class="weekday-header">Mar</div>
+                <div class="weekday-header">Mié</div>
+                <div class="weekday-header">Jue</div>
+                <div class="weekday-header">Vie</div>
+                <div class="weekday-header">Sáb</div>
+                <div class="weekday-header">Dom</div>
+              </div>
+
+              <div class="day-detail-panel" id="vehicleCalendarDayDetails">
+                <span class="detail-panel-title">Actividad del vehículo en día seleccionado</span>
+                <div class="detail-panel-date" id="vehicleDetailDateDisplay">Selecciona un día del calendario</div>
+                <div class="detail-panel-content" id="vehicleDetailValueDisplay">Haz clic en cualquier día para ver el detalle de actividad.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
 
   </main>
@@ -1248,11 +1492,20 @@ var DRIVE_DATA_URL = "https://docs.google.com/spreadsheets/d/1Cpplul4IMvOFf6P47L
 var selectedWorker = "";
 var currentView = "list"; // 'list' es principal por defecto, 'calendar' opcional
 
+var allVehicles = [];
+var selectedVehicle = null;
+var VEHICLE_SHEET_CANDIDATES = ["Vehiculos", "Vehículos", "vehiculos", "VEHICULOS"];
+var VEHICLE_LOCAL_STORAGE_KEY = "selectedVehicleTUA";
+
 // Mes seleccionado para el filtro general de la lista
 var selectedFilterMonth = "all";
+var vehicleSelectedFilterMonth = "all";
+var activeModule = "personal";
+var vehicleCurrentView = "list";
 
 // Fecha seleccionada para visualización en el calendario
 var calendarDisplayDate = new Date(2026, 0, 1); // 1 de Enero de 2026
+var vehicleCalendarDisplayDate = new Date(2026, 0, 1);
 
 // Refresco automático de datos del CSV local
 var dataRefreshTimer = null;
@@ -1279,10 +1532,16 @@ document.addEventListener("DOMContentLoaded", function() {
     loadDataFromLocalMock();
   }
 
-  if (!window.portalDataEmbedded && !hasDriveDataSource()) {
+  if (hasDriveDataSource() || !window.portalDataEmbedded) {
     startAutoRefresh();
+  }
+
+  if (!window.portalDataEmbedded && !hasDriveDataSource()) {
     startLiveUpdates();
   }
+
+  loadVehiclesModule();
+  setModuleTab("personal");
   
   // Agregar listener para tecla Enter en buscador
   document.getElementById("workerSearch").addEventListener("keydown", function(e) {
@@ -1290,6 +1549,19 @@ document.addEventListener("DOMContentLoaded", function() {
       var dropdown = document.getElementById("autocompleteDropdown");
       var options = dropdown.getElementsByClassName("autocomplete-option");
       // Seleccionar la primera sugerencia visible
+      for (var i = 0; i < options.length; i++) {
+        if (options[i].style.display !== "none") {
+          options[i].click();
+          break;
+        }
+      }
+    }
+  });
+
+  document.getElementById("vehicleSearch").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+      var dropdown = document.getElementById("vehicleAutocompleteDropdown");
+      var options = dropdown.getElementsByClassName("autocomplete-option");
       for (var i = 0; i < options.length; i++) {
         if (options[i].style.display !== "none") {
           options[i].click();
@@ -1529,6 +1801,443 @@ function loadDataFromDriveViaJSONP(driveUrl) {
   });
 }
 
+function loadVehiclesModule() {
+  var stateEl = document.getElementById("vehicleInitialState");
+  if (!hasDriveDataSource()) {
+    stateEl.innerText = "No hay origen de datos configurado para vehículos.";
+    setVehicleModuleStatus("Sin origen de datos para vehículos.");
+    return;
+  }
+
+  setVehicleModuleStatus("Cargando vehículos desde Excel...");
+  loadVehiclesFromDrive();
+}
+
+function loadVehiclesFromDrive() {
+  loadVehiclesSheetFromDrive(DRIVE_DATA_URL)
+    .then(function(vehicles) {
+      allVehicles = vehicles.sort(function(a, b) {
+        return a.primaryLabel.localeCompare(b.primaryLabel, "es");
+      });
+      buildVehicleAutocompleteList();
+
+      var stateEl = document.getElementById("vehicleInitialState");
+      if (allVehicles.length === 0) {
+        stateEl.innerText = "No se encontraron vehículos en la pestaña Vehiculos.";
+        setVehicleModuleStatus("No se encontraron vehículos en la pestaña Vehiculos.");
+      } else {
+        stateEl.innerText = "Escribe para buscar un vehículo por matrícula, nombre o referencia.";
+        setVehicleModuleStatus("Vehículos cargados: " + allVehicles.length);
+
+        var savedVehicleKey = localStorage.getItem(VEHICLE_LOCAL_STORAGE_KEY);
+        if (savedVehicleKey) {
+          var idx = allVehicles.findIndex(function(v) {
+            return v.key === savedVehicleKey;
+          });
+          if (idx > -1) {
+            selectVehicle(idx);
+          }
+        }
+      }
+    })
+    .catch(function(error) {
+      console.error("Error cargando datos de vehículos:", error);
+      document.getElementById("vehicleInitialState").innerText = "No se pudo cargar la pestaña Vehiculos.";
+      setVehicleModuleStatus("Error cargando vehículos.");
+      showToast("No se pudo cargar la pestaña Vehiculos.", "warning");
+    });
+}
+
+function setVehicleModuleStatus(message) {
+  var statusEl = document.getElementById("vehicleModuleStatus");
+  if (statusEl) {
+    statusEl.innerText = message;
+  }
+}
+
+function loadVehiclesSheetFromDrive(driveUrl) {
+  var index = 0;
+
+  function tryNextSheet() {
+    if (index >= VEHICLE_SHEET_CANDIDATES.length) {
+      return Promise.reject(new Error("No se encontró la pestaña de vehículos."));
+    }
+
+    var sheetName = VEHICLE_SHEET_CANDIDATES[index++];
+    return loadSheetTableFromDriveViaJSONP(driveUrl, sheetName)
+      .then(function(table) {
+        var vehicles = parseVehiclesFromGvizTable(table);
+        return vehicles;
+      })
+      .catch(function() {
+        return tryNextSheet();
+      });
+  }
+
+  return tryNextSheet();
+}
+
+function loadSheetTableFromDriveViaJSONP(driveUrl, sheetName) {
+  return new Promise(function(resolve, reject) {
+    var sheetId = getSheetIdFromUrl(driveUrl);
+    if (!sheetId) {
+      reject(new Error("El enlace no parece ser de Google Sheets."));
+      return;
+    }
+
+    var callbackName = "portalVehicleJsonp_" + Date.now() + "_" + Math.floor(Math.random() * 1000000);
+    var script = document.createElement("script");
+    var done = false;
+
+    function cleanup() {
+      if (script && script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+      try {
+        delete window[callbackName];
+      } catch (e) {
+        window[callbackName] = undefined;
+      }
+    }
+
+    var timeoutId = setTimeout(function() {
+      if (done) return;
+      done = true;
+      cleanup();
+      reject(new Error("Tiempo de espera agotado al leer la pestaña " + sheetName + "."));
+    }, 20000);
+
+    window[callbackName] = function(payload) {
+      if (done) return;
+      done = true;
+      clearTimeout(timeoutId);
+      cleanup();
+
+      if (!payload || payload.status !== "ok" || !payload.table) {
+        reject(new Error("No se pudo leer la pestaña " + sheetName + "."));
+        return;
+      }
+
+      resolve(payload.table);
+    };
+
+    script.onerror = function() {
+      if (done) return;
+      done = true;
+      clearTimeout(timeoutId);
+      cleanup();
+      reject(new Error("No se pudo cargar el script para la pestaña " + sheetName + "."));
+    };
+
+    script.src = "https://docs.google.com/spreadsheets/d/" + sheetId + "/gviz/tq?sheet=" + encodeURIComponent(sheetName) + "&tqx=" + encodeURIComponent("out:json;responseHandler:" + callbackName) + "&t=" + Date.now();
+    document.head.appendChild(script);
+  });
+}
+
+function parseVehiclesFromGvizTable(table) {
+  if (!table || !table.cols || !table.rows) {
+    return [];
+  }
+
+  var baseHeaders = table.cols.map(function(col, idx) {
+    var label = col && col.label ? String(col.label).trim() : "";
+    return label || ("col_" + (idx + 1));
+  });
+
+  var rawRows = table.rows.map(function(row) {
+    return baseHeaders.map(function(_, c) {
+      var cell = row && row.c ? row.c[c] : null;
+      if (!cell) return "";
+      if (cell.f !== undefined && cell.f !== null && cell.f !== "") {
+        return String(cell.f).trim();
+      }
+      if (cell.v !== undefined && cell.v !== null) {
+        return String(cell.v).trim();
+      }
+      return "";
+    });
+  });
+
+  var headers = baseHeaders.slice();
+  var startRow = 0;
+
+  if (looksLikeVehicleColumnMatrix(rawRows)) {
+    return parseVehiclesFromColumnMatrix(rawRows);
+  }
+
+  if (!hasMeaningfulVehicleHeaders(headers) && rawRows.length > 0 && looksLikeVehicleHeaderRow(rawRows[0])) {
+    headers = rawRows[0].map(function(h, idx) {
+      return h || ("col_" + (idx + 1));
+    });
+    startRow = 1;
+  }
+
+  headers = makeUniqueVehicleHeaders(headers);
+
+  var vehicles = [];
+
+  for (var r = startRow; r < rawRows.length; r++) {
+    var row = rawRows[r];
+    var record = {};
+    var hasValue = false;
+
+    for (var c = 0; c < headers.length; c++) {
+      var value = row[c] || "";
+
+      if (value) {
+        hasValue = true;
+      }
+      record[headers[c]] = value;
+    }
+
+    if (!hasValue) {
+      continue;
+    }
+
+    var primary = getVehiclePreferredFieldValue(record, [
+      "matricula", "matrícula", "vehiculo", "vehículo", "nombre", "codigo", "código", "id"
+    ]);
+    if (!primary) {
+      primary = "Vehículo " + (vehicles.length + 1);
+    }
+
+    var secondary = getVehiclePreferredFieldValue(record, [
+      "modelo", "marca", "estado", "conductor", "chofer", "asignado", "ruta"
+    ]);
+
+    vehicles.push({
+      id: vehicles.length,
+      key: computeVehicleStableKey(record, primary, secondary),
+      primaryLabel: primary,
+      secondaryLabel: secondary,
+      record: record,
+      searchText: normalizeText(primary + " " + (secondary || "") + " " + Object.values(record).join(" "))
+    });
+  }
+
+  return vehicles;
+}
+
+function looksLikeVehicleColumnMatrix(rawRows) {
+  if (!rawRows || rawRows.length < 2) return false;
+
+  var firstRow = rawRows[0] || [];
+  var firstRowNonEmpty = firstRow.slice(1).filter(function(v) {
+    return !!String(v || "").trim();
+  }).length;
+
+  if (firstRowNonEmpty < 3) return false;
+
+  var maxRows = Math.min(rawRows.length, 20);
+  var labelLikeCount = 0;
+  for (var r = 1; r < maxRows; r++) {
+    var label = String((rawRows[r] && rawRows[r][0]) || "").trim();
+    if (!label) continue;
+    if (!/^\d+$/.test(label) && label.length < 60) {
+      labelLikeCount++;
+    }
+  }
+
+  return labelLikeCount >= 2;
+}
+
+function parseVehiclesFromColumnMatrix(rawRows) {
+  var vehicles = [];
+  var firstRow = rawRows[0] || [];
+  var labelColumnIndex = 0;
+
+  for (var c = 1; c < firstRow.length; c++) {
+    var vehicleName = String(firstRow[c] || "").trim();
+    if (!vehicleName) continue;
+
+    var record = { "Vehículo": vehicleName };
+
+    for (var r = 1; r < rawRows.length; r++) {
+      var row = rawRows[r] || [];
+      var fieldName = String(row[labelColumnIndex] || "").trim();
+      var fieldValue = String(row[c] || "").trim();
+      if (!fieldValue) continue;
+
+      if (!fieldName) {
+        fieldName = "Campo " + r;
+      }
+      if (record[fieldName] !== undefined) {
+        fieldName = fieldName + "_" + r;
+      }
+      record[fieldName] = fieldValue;
+    }
+
+    var primary = vehicleName;
+    var secondary = getVehiclePreferredFieldValue(record, [
+      "matricula", "matrícula", "modelo", "marca", "estado", "conductor", "chofer"
+    ]);
+
+    vehicles.push({
+      id: vehicles.length,
+      key: computeVehicleStableKey(record, primary, secondary),
+      primaryLabel: primary,
+      secondaryLabel: secondary,
+      record: record,
+      searchText: normalizeText(primary + " " + (secondary || "") + " " + Object.values(record).join(" "))
+    });
+  }
+
+  return vehicles;
+}
+
+function hasMeaningfulVehicleHeaders(headers) {
+  var meaningful = headers.filter(function(h) {
+    var n = normalizeText(h);
+    return n && !/^col_\d+$/.test(n);
+  });
+  return meaningful.length >= Math.max(2, Math.floor(headers.length / 3));
+}
+
+function looksLikeVehicleHeaderRow(rowValues) {
+  var nonEmpty = rowValues.filter(function(v) { return !!String(v || "").trim(); }).length;
+  if (nonEmpty < 2) return false;
+
+  var combined = normalizeText(rowValues.join(" "));
+  var hints = ["matricula", "matrícula", "vehiculo", "vehículo", "marca", "modelo", "estado", "conductor"];
+  return hints.some(function(h) { return combined.indexOf(normalizeText(h)) > -1; });
+}
+
+function makeUniqueVehicleHeaders(headers) {
+  var counts = {};
+  return headers.map(function(header, idx) {
+    var base = String(header || "").trim() || ("col_" + (idx + 1));
+    if (!counts[base]) {
+      counts[base] = 1;
+      return base;
+    }
+    counts[base] += 1;
+    return base + "_" + counts[base];
+  });
+}
+
+function computeVehicleStableKey(record, primary, secondary) {
+  var identity = [primary || "", secondary || ""];
+  var fallbackParts = Object.keys(record).slice(0, 5).map(function(key) {
+    return key + ":" + (record[key] || "");
+  });
+  return normalizeText(identity.join("|") + "|" + fallbackParts.join("|"));
+}
+
+function getVehiclePreferredFieldValue(record, candidateKeys) {
+  var normalizedMap = {};
+
+  Object.keys(record).forEach(function(key) {
+    normalizedMap[normalizeText(key)] = key;
+  });
+
+  for (var i = 0; i < candidateKeys.length; i++) {
+    var candidate = normalizeText(candidateKeys[i]);
+    if (normalizedMap[candidate]) {
+      var value = (record[normalizedMap[candidate]] || "").trim();
+      if (value) {
+        return value;
+      }
+    }
+  }
+
+  return "";
+}
+
+function buildVehicleAutocompleteList() {
+  var dropdown = document.getElementById("vehicleAutocompleteDropdown");
+  dropdown.innerHTML = "";
+
+  allVehicles.forEach(function(vehicle, index) {
+    var option = document.createElement("div");
+    option.className = "autocomplete-option";
+    option.innerText = vehicle.secondaryLabel ? (vehicle.primaryLabel + " — " + vehicle.secondaryLabel) : vehicle.primaryLabel;
+    option.onclick = function(e) {
+      selectVehicle(index);
+      hideVehicleAutocomplete();
+      e.stopPropagation();
+    };
+    dropdown.appendChild(option);
+  });
+}
+
+function showVehicleAutocomplete() {
+  var dropdown = document.getElementById("vehicleAutocompleteDropdown");
+  dropdown.classList.add("open");
+  filterVehicleAutocomplete();
+  document.addEventListener("click", closeVehicleAutocompleteOnOutsideClick);
+}
+
+function hideVehicleAutocomplete() {
+  var dropdown = document.getElementById("vehicleAutocompleteDropdown");
+  dropdown.classList.remove("open");
+  document.removeEventListener("click", closeVehicleAutocompleteOnOutsideClick);
+}
+
+function closeVehicleAutocompleteOnOutsideClick(e) {
+  var container = document.querySelector(".vehicle-search-wrapper");
+  if (container && !container.contains(e.target)) {
+    hideVehicleAutocomplete();
+  }
+}
+
+function filterVehicleAutocomplete() {
+  var input = document.getElementById("vehicleSearch");
+  var filter = normalizeText(input.value);
+  var dropdown = document.getElementById("vehicleAutocompleteDropdown");
+  var options = dropdown.getElementsByClassName("autocomplete-option");
+  var hasResults = false;
+
+  for (var i = 0; i < options.length; i++) {
+    var vehicle = allVehicles[i];
+    if (!vehicle) continue;
+
+    if (!filter || vehicle.searchText.indexOf(filter) > -1) {
+      options[i].style.display = "";
+      hasResults = true;
+    } else {
+      options[i].style.display = "none";
+    }
+  }
+
+  if (hasResults) {
+    dropdown.classList.add("open");
+  } else {
+    dropdown.classList.remove("open");
+  }
+}
+
+function selectVehicle(index) {
+  var vehicle = allVehicles[index];
+  if (!vehicle) return;
+
+  selectedVehicle = vehicle;
+  localStorage.setItem(VEHICLE_LOCAL_STORAGE_KEY, vehicle.key);
+  document.getElementById("vehicleSearch").value = vehicle.primaryLabel;
+  document.getElementById("vehicleSelectedDisplay").innerText = vehicle.secondaryLabel ? (vehicle.primaryLabel + " — " + vehicle.secondaryLabel) : vehicle.primaryLabel;
+  document.getElementById("vehicleInitialState").style.display = "none";
+  document.getElementById("vehicleMainDashboard").style.display = "flex";
+
+  vehicleSelectedFilterMonth = "all";
+  document.getElementById("vehicleMonthFilterSelect").value = "all";
+
+  var entries = getVehicleScheduleEntries();
+  if (entries.length > 0) {
+    vehicleCalendarDisplayDate = new Date(entries[0].dateObj.getFullYear(), entries[0].dateObj.getMonth(), 1);
+  }
+
+  setVehicleView("list");
+  updateVehicleDashboardData();
+}
+
+function escapeHtml(text) {
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function parseCSV(text) {
   var lines = [];
   var row = [""];
@@ -1686,6 +2395,7 @@ function refreshDataFromSource() {
     loadDataFromGAS();
   } else if (hasDriveDataSource()) {
     loadDataFromDrive();
+    loadVehiclesFromDrive();
   } else if (window.portalDataEmbedded) {
     onDataLoaded(window.portalDataEmbedded);
   } else {
@@ -1703,10 +2413,6 @@ function loadEmbeddedData() {
 }
 
 function startAutoRefresh() {
-  if (hasDriveDataSource()) {
-    return;
-  }
-
   if (dataRefreshTimer) {
     clearInterval(dataRefreshTimer);
   }
@@ -1824,6 +2530,39 @@ function workerExists(name) {
   return !!getWorkerByName(name);
 }
 
+function setModuleTab(moduleType) {
+  activeModule = moduleType === "vehicles" ? "vehicles" : "personal";
+
+  var moduleMainTitle = document.getElementById("moduleMainTitle");
+  var btnPersonal = document.getElementById("btnPersonalModule");
+  var btnVehicle = document.getElementById("btnVehicleModule");
+  var personalPanel = document.getElementById("personalModulePanel");
+  var vehiclePanel = document.getElementById("vehicleModulePanel");
+  var personalViewControls = document.getElementById("viewControls");
+
+  if (activeModule === "personal") {
+    moduleMainTitle.innerText = "🔍 Buscador de perosnal TUA";
+    btnPersonal.classList.add("active");
+    btnVehicle.classList.remove("active");
+    personalPanel.style.display = "block";
+    vehiclePanel.style.display = "none";
+    personalViewControls.style.display = selectedWorker ? "flex" : "none";
+    if (currentView === "calendar") {
+      renderCalendar();
+    }
+  } else {
+    moduleMainTitle.innerText = "🚚 Buscador de Vehículos 2026";
+    btnPersonal.classList.remove("active");
+    btnVehicle.classList.add("active");
+    personalPanel.style.display = "none";
+    vehiclePanel.style.display = "block";
+    personalViewControls.style.display = "none";
+    if (selectedVehicle && vehicleCurrentView === "calendar") {
+      renderVehicleCalendar();
+    }
+  }
+}
+
 function getShiftValueForSelectedWorker(shiftObj) {
   if (!shiftObj || !selectedWorker) return "";
 
@@ -1939,7 +2678,7 @@ function selectWorker(workerName) {
   document.getElementById("workerSearch").value = resolvedWorkerName;
   
   // Mostrar controles y ocultar estado vacío
-  document.getElementById("viewControls").style.display = "flex";
+  document.getElementById("viewControls").style.display = activeModule === "personal" ? "flex" : "none";
   document.getElementById("initialState").style.display = "none";
   document.getElementById("mainDashboard").style.display = "flex";
   
@@ -2094,7 +2833,7 @@ function setView(viewType) {
   var btnCal = document.getElementById("btnCalendarView");
   var divList = document.getElementById("listViewContainer");
   var divCal = document.getElementById("calendarViewContainer");
-  
+
   if (viewType === "list") {
     btnList.classList.add("active");
     btnCal.classList.remove("active");
@@ -2105,7 +2844,7 @@ function setView(viewType) {
     btnCal.classList.add("active");
     divList.style.display = "none";
     divCal.style.display = "block";
-    
+
     // Forzar redibujo de calendario para asegurar que cargue bien
     renderCalendar();
   }
@@ -2120,29 +2859,29 @@ function parseDateString(dateStr) {
     var parts = dateStr.split("-");
     return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
   }
-  
+
   var cleanStr = dateStr.replace(/["']/g, "").trim();
   var commaParts = cleanStr.split(",");
   if (commaParts.length < 3) {
     var parsedDate = new Date(cleanStr);
     return isNaN(parsedDate.getTime()) ? null : parsedDate;
   }
-  
+
   var monthDayParts = commaParts[1].trim().split(/\s+/);
   if (monthDayParts.length < 2) return null;
-  
+
   var monthName = monthDayParts[0].toLowerCase();
   var day = parseInt(monthDayParts[1], 10);
   var year = parseInt(commaParts[2].trim(), 10);
-  
+
   var monthsMapping = {
     "enero": 0, "febrero": 1, "marzo": 2, "abril": 3, "mayo": 4, "junio": 5,
     "julio": 6, "agosto": 7, "septiembre": 8, "octubre": 9, "noviembre": 10, "diciembre": 11
   };
-  
+
   var month = monthsMapping[monthName];
   if (month === undefined) return null;
-  
+
   return new Date(year, month, day);
 }
 
@@ -2162,7 +2901,7 @@ function formatDateDDMMYYYY(dateObj) {
 function renderShiftTable(monthFilter) {
   var tbody = document.getElementById("activityTableBody");
   tbody.innerHTML = "";
-  
+
   var filteredShifts = allShifts.filter(function(shiftObj) {
     var pDate = parseDateString(shiftObj.date);
     if (!pDate) return false;
@@ -2171,7 +2910,7 @@ function renderShiftTable(monthFilter) {
     }
     return true;
   });
-  
+
   if (filteredShifts.length === 0) {
     tbody.innerHTML = `
       <tr>
@@ -2182,50 +2921,44 @@ function renderShiftTable(monthFilter) {
     `;
     return;
   }
-  
+
   filteredShifts.forEach(function(shiftObj) {
     var pDate = parseDateString(shiftObj.date);
     var rawVal = getShiftValueForSelectedWorker(shiftObj);
     var category = getShiftCategory(rawVal);
-    
+
     var tr = document.createElement("tr");
     tr.style.cursor = "pointer";
-    
-    // Celda 1: Fecha
+
     var tdDate = document.createElement("td");
     tdDate.innerText = formatDateDDMMYYYY(pDate);
     tr.appendChild(tdDate);
-    
-    // Celda 2: Día de la semana (en minúsculas)
+
     var tdDay = document.createElement("td");
     tdDay.innerText = DAY_NAMES[pDate.getDay()];
     tdDay.style.color = "var(--text-secondary)";
     tr.appendChild(tdDay);
-    
-    // Celda 3: Actividad
+
     var tdActivity = document.createElement("td");
     tdActivity.className = "activity-text-cell";
-    
     if (category === "sin-asignar" || category === "libre") {
       tdActivity.innerHTML = `<span class="activity-text-empty">--</span>`;
     } else {
       tdActivity.innerText = rawVal;
     }
     tr.appendChild(tdActivity);
-    
-    // Celda 4: Tipo de Turno (Badge)
+
     var tdType = document.createElement("td");
     var badge = document.createElement("span");
     badge.className = "type-badge " + getCategoryBadgeClass(category);
     badge.innerText = getCategoryLabel(category, rawVal);
     tdType.appendChild(badge);
     tr.appendChild(tdType);
-    
-    // Evento de clic abre el modal
+
     tr.onclick = function() {
       openModal(pDate, rawVal);
     };
-    
+
     tbody.appendChild(tr);
   });
 }
@@ -2243,98 +2976,82 @@ function changeCalendarMonth(direction) {
  */
 function renderCalendar() {
   if (!selectedWorker || currentView !== "calendar") return;
-  
+
   var grid = document.getElementById("calendarGrid");
-  
-  // Limpiar días del calendario anterior (manteniendo Lun-Dom)
+
   var headersCount = 7;
   while (grid.children.length > headersCount) {
     grid.removeChild(grid.lastChild);
   }
-  
+
   var year = calendarDisplayDate.getFullYear();
   var month = calendarDisplayDate.getMonth();
-  
-  // Actualizar título del mes del calendario
   document.getElementById("calendarMonthLabel").innerText = MONTH_NAMES[month] + " " + year;
-  
+
   var firstDay = new Date(year, month, 1);
-  var startingDayIndex = (firstDay.getDay() + 6) % 7; // Lunes = 0, ..., Domingo = 6
+  var startingDayIndex = (firstDay.getDay() + 6) % 7;
   var totalDays = new Date(year, month + 1, 0).getDate();
-  
-  // Celdas vacías previas
+
   for (var i = 0; i < startingDayIndex; i++) {
     var emptyCell = document.createElement("div");
     emptyCell.className = "calendar-day empty";
     grid.appendChild(emptyCell);
   }
-  
+
   var today = new Date();
   var defaultSelectedCell = null;
   var defaultSelectedDate = null;
   var defaultSelectedValue = "";
-  
-  // Rellenar días del mes
+
   for (var day = 1; day <= totalDays; day++) {
     var currentDate = new Date(year, month, day);
     var dayCell = document.createElement("div");
     dayCell.className = "calendar-day";
-    
-    // Resaltar hoy si corresponde
-    var isToday = (currentDate.getDate() === today.getDate() && 
-                   currentDate.getMonth() === today.getMonth() && 
-                   currentDate.getFullYear() === today.getFullYear());
+
+    var isToday = currentDate.getDate() === today.getDate() && currentDate.getMonth() === today.getMonth() && currentDate.getFullYear() === today.getFullYear();
     if (isToday) {
       dayCell.classList.add("today");
     }
-    
-    // Número del día
+
     var numSpan = document.createElement("span");
     numSpan.className = "day-num";
     numSpan.innerText = day;
     dayCell.appendChild(numSpan);
-    
-    // Obtener turno
+
     var formattedSearchDate = formatDateISO(currentDate);
     var shiftValue = (getShiftForDate(formattedSearchDate) || "").trim();
     var category = getShiftCategory(shiftValue);
     var label = getCategoryLabel(category, shiftValue);
     var badgeClass = getCategoryBadgeClass(category);
-    
-    // 1. Vista Escritorio: Badge de texto
+
     var textEl = document.createElement("div");
     textEl.className = "day-shift-text " + badgeClass;
     textEl.innerText = label;
     dayCell.appendChild(textEl);
-    
-    // 2. Vista Móvil: Puntito de color
+
     var dotsContainer = document.createElement("div");
     dotsContainer.className = "day-dots-container";
-    
     var dot = document.createElement("div");
     dot.className = "day-dot";
     dot.style.backgroundColor = getDotColorHex(category);
     dotsContainer.appendChild(dot);
     dayCell.appendChild(dotsContainer);
-    
-    // Asignar el día por defecto para el panel inferior (hoy o el día 1)
+
     if (isToday || (!defaultSelectedDate && day === 1)) {
       defaultSelectedCell = dayCell;
       defaultSelectedDate = new Date(currentDate);
       defaultSelectedValue = shiftValue;
     }
-    
-    // Evento de clic
+
     (function(cell, date, val) {
       cell.onclick = function() {
         selectCalendarDay(date, val, cell);
       };
     })(dayCell, new Date(currentDate), shiftValue);
-    
+
     grid.appendChild(dayCell);
   }
-  
-  // Seleccionar el día por defecto para rellenar el panel de detalles inferior
+
   if (defaultSelectedCell) {
     selectCalendarDay(defaultSelectedDate, defaultSelectedValue, defaultSelectedCell);
   }
@@ -2344,38 +3061,34 @@ function renderCalendar() {
  * Obtiene el color hexadecimal para los puntos del calendario móvil.
  */
 function getDotColorHex(category) {
-  if (category === "sin-asignar") return "#94a3b8"; // Gris
-  if (category === "libre") return "#64748b"; // Gris oscuro
-  if (category === "vacaciones") return "#0284c7"; // Celeste
-  if (category === "nave") return "#7c3aed"; // Morado
-  if (category === "baja") return "#dc2626"; // Rojo
-  return "#16a34a"; // Verde (Trabajo)
+  if (category === "sin-asignar") return "#94a3b8";
+  if (category === "libre") return "#64748b";
+  if (category === "vacaciones") return "#0284c7";
+  if (category === "nave") return "#7c3aed";
+  if (category === "baja") return "#dc2626";
+  return "#16a34a";
 }
 
 /**
  * Selecciona un día del calendario, lo resalta y actualiza el panel inferior.
  */
 function selectCalendarDay(dateObj, shiftValue, cellElement) {
-  // Desmarcar celdas anteriores
   var cells = document.querySelectorAll(".calendar-day");
   cells.forEach(function(c) {
     c.classList.remove("active-selected");
   });
-  
-  // Marcar celda actual
+
   cellElement.classList.add("active-selected");
-  
-  // Formatear fecha para el panel
-  var options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
-  var formattedTitle = dateObj.toLocaleDateString('es-ES', options);
-  
+
+  var options = { weekday: "long", day: "numeric", month: "long", year: "numeric" };
+  var formattedTitle = dateObj.toLocaleDateString("es-ES", options);
+
   document.getElementById("detailDateDisplay").innerText = formattedTitle;
-  
+
   var contentEl = document.getElementById("detailValueDisplay");
   var cleanShift = shiftValue.trim() !== "" ? shiftValue : "Libre";
   contentEl.innerText = cleanShift;
-  
-  // Estilo visual según la categoría
+
   var category = getShiftCategory(shiftValue);
   contentEl.style.borderLeft = "4px solid " + getDotColorHex(category);
 }
@@ -2408,15 +3121,15 @@ function getShiftForDate(isoDateStr) {
  * Abre el Modal de detalles de un día.
  */
 function openModal(dateObj, shiftValue) {
-  var options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
-  var formattedTitle = dateObj.toLocaleDateString('es-ES', options);
-  
+  var options = { weekday: "long", day: "numeric", month: "long", year: "numeric" };
+  var formattedTitle = dateObj.toLocaleDateString("es-ES", options);
+
   document.getElementById("modalDateTitle").innerText = formattedTitle;
   document.getElementById("modalWorkerName").innerText = selectedWorker;
-  
+
   var cleanShift = shiftValue.trim() !== "" ? shiftValue : "Libre / Sin turno";
   document.getElementById("modalShiftValue").innerText = cleanShift;
-  
+
   document.getElementById("detailModal").classList.add("open");
 }
 
@@ -2425,6 +3138,309 @@ function openModal(dateObj, shiftValue) {
  */
 function closeModal() {
   document.getElementById("detailModal").classList.remove("open");
+}
+
+function getVehicleScheduleEntries() {
+  if (!selectedVehicle || !selectedVehicle.record) return [];
+
+  var entries = [];
+
+  Object.keys(selectedVehicle.record).forEach(function(key) {
+    var value = (selectedVehicle.record[key] || "").trim();
+    if (!value) return;
+
+    var parsedDate = parseVehicleDateKey(key);
+    if (!parsedDate || isNaN(parsedDate.getTime())) return;
+
+    entries.push({
+      dateObj: parsedDate,
+      isoDate: formatDateISO(parsedDate),
+      rawValue: value
+    });
+  });
+
+  entries.sort(function(a, b) {
+    return a.dateObj.getTime() - b.dateObj.getTime();
+  });
+
+  return entries;
+}
+
+function parseVehicleDateKey(key) {
+  var raw = String(key || "").trim();
+  if (!raw) return null;
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+    return parseDateString(raw);
+  }
+
+  if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(raw)) {
+    var parts = raw.split("/");
+    var d = parseInt(parts[0], 10);
+    var m = parseInt(parts[1], 10) - 1;
+    var y = parseInt(parts[2], 10);
+    var candidate = new Date(y, m, d);
+    if (candidate.getFullYear() === y && candidate.getMonth() === m && candidate.getDate() === d) {
+      return candidate;
+    }
+    return null;
+  }
+
+  if (raw.indexOf(",") > -1) {
+    return parseDateString(raw);
+  }
+
+  return null;
+}
+
+function updateVehicleDashboardData() {
+  calculateVehicleStats(vehicleSelectedFilterMonth);
+  renderVehicleShiftTable(vehicleSelectedFilterMonth);
+  renderVehicleCalendar();
+}
+
+function calculateVehicleStats(monthFilter) {
+  var libresCount = 0;
+  var vacacionesCount = 0;
+  var naveCount = 0;
+  var trabajoCount = 0;
+  var bajaCount = 0;
+  var sinAsignarCount = 0;
+
+  var entries = getVehicleScheduleEntries();
+  entries.forEach(function(entry) {
+    if (monthFilter !== "all" && entry.dateObj.getMonth() !== parseInt(monthFilter, 10)) {
+      return;
+    }
+
+    var category = getShiftCategory(entry.rawValue);
+    if (category === "libre") libresCount++;
+    else if (category === "vacaciones") vacacionesCount++;
+    else if (category === "nave") naveCount++;
+    else if (category === "baja") bajaCount++;
+    else if (category === "sin-asignar") sinAsignarCount++;
+    else if (category === "trabajo") trabajoCount++;
+  });
+
+  document.getElementById("vehicleStatLibres").innerText = libresCount;
+  document.getElementById("vehicleStatVacaciones").innerText = vacacionesCount;
+  document.getElementById("vehicleStatNave").innerText = naveCount;
+  document.getElementById("vehicleStatTrabajo").innerText = trabajoCount;
+  document.getElementById("vehicleStatBaja").innerText = bajaCount;
+  document.getElementById("vehicleStatSinAsignar").innerText = sinAsignarCount;
+}
+
+function onVehicleMonthFilterSelectChange() {
+  vehicleSelectedFilterMonth = document.getElementById("vehicleMonthFilterSelect").value;
+  if (vehicleSelectedFilterMonth !== "all") {
+    vehicleCalendarDisplayDate.setMonth(parseInt(vehicleSelectedFilterMonth, 10));
+  }
+  updateVehicleDashboardData();
+}
+
+function setVehicleView(viewType) {
+  vehicleCurrentView = viewType;
+
+  var btnList = document.getElementById("btnVehicleListView");
+  var btnCal = document.getElementById("btnVehicleCalendarView");
+  var divList = document.getElementById("vehicleListViewContainer");
+  var divCal = document.getElementById("vehicleCalendarViewContainer");
+
+  if (viewType === "list") {
+    btnList.classList.add("active");
+    btnCal.classList.remove("active");
+    divList.style.display = "block";
+    divCal.style.display = "none";
+  } else {
+    btnList.classList.remove("active");
+    btnCal.classList.add("active");
+    divList.style.display = "none";
+    divCal.style.display = "block";
+    renderVehicleCalendar();
+  }
+}
+
+function renderVehicleShiftTable(monthFilter) {
+  var tbody = document.getElementById("vehicleActivityTableBody");
+  tbody.innerHTML = "";
+
+  var entries = getVehicleScheduleEntries().filter(function(entry) {
+    return monthFilter === "all" || entry.dateObj.getMonth() === parseInt(monthFilter, 10);
+  });
+
+  if (entries.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="4" style="text-align: center; color: var(--text-muted); font-style: italic; padding: 2rem;">
+          No hay actividad planificada para este período.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  entries.forEach(function(entry) {
+    var category = getShiftCategory(entry.rawValue);
+    var tr = document.createElement("tr");
+    tr.style.cursor = "pointer";
+
+    var tdDate = document.createElement("td");
+    tdDate.innerText = formatDateDDMMYYYY(entry.dateObj);
+    tr.appendChild(tdDate);
+
+    var tdDay = document.createElement("td");
+    tdDay.innerText = DAY_NAMES[entry.dateObj.getDay()];
+    tdDay.style.color = "var(--text-secondary)";
+    tr.appendChild(tdDay);
+
+    var tdActivity = document.createElement("td");
+    tdActivity.className = "activity-text-cell";
+    if (category === "sin-asignar" || category === "libre") {
+      tdActivity.innerHTML = `<span class="activity-text-empty">--</span>`;
+    } else {
+      tdActivity.innerText = entry.rawValue;
+    }
+    tr.appendChild(tdActivity);
+
+    var tdType = document.createElement("td");
+    var badge = document.createElement("span");
+    badge.className = "type-badge " + getCategoryBadgeClass(category);
+    badge.innerText = getCategoryLabel(category, entry.rawValue);
+    tdType.appendChild(badge);
+    tr.appendChild(tdType);
+
+    tr.onclick = function() {
+      openVehicleModal(entry.dateObj, entry.rawValue);
+    };
+
+    tbody.appendChild(tr);
+  });
+}
+
+function changeVehicleCalendarMonth(direction) {
+  vehicleCalendarDisplayDate.setMonth(vehicleCalendarDisplayDate.getMonth() + direction);
+  renderVehicleCalendar();
+}
+
+function renderVehicleCalendar() {
+  if (!selectedVehicle || vehicleCurrentView !== "calendar") return;
+
+  var grid = document.getElementById("vehicleCalendarGrid");
+  var headersCount = 7;
+  while (grid.children.length > headersCount) {
+    grid.removeChild(grid.lastChild);
+  }
+
+  var entries = getVehicleScheduleEntries();
+  var valueMap = {};
+  entries.forEach(function(entry) {
+    valueMap[entry.isoDate] = entry.rawValue;
+  });
+
+  var year = vehicleCalendarDisplayDate.getFullYear();
+  var month = vehicleCalendarDisplayDate.getMonth();
+  document.getElementById("vehicleCalendarMonthLabel").innerText = MONTH_NAMES[month] + " " + year;
+
+  var firstDay = new Date(year, month, 1);
+  var startingDayIndex = (firstDay.getDay() + 6) % 7;
+  var totalDays = new Date(year, month + 1, 0).getDate();
+
+  for (var i = 0; i < startingDayIndex; i++) {
+    var emptyCell = document.createElement("div");
+    emptyCell.className = "calendar-day empty";
+    grid.appendChild(emptyCell);
+  }
+
+  var today = new Date();
+  var defaultSelectedCell = null;
+  var defaultSelectedDate = null;
+  var defaultSelectedValue = "";
+
+  for (var day = 1; day <= totalDays; day++) {
+    var currentDate = new Date(year, month, day);
+    var dayCell = document.createElement("div");
+    dayCell.className = "calendar-day";
+
+    var isToday = currentDate.getDate() === today.getDate() && currentDate.getMonth() === today.getMonth() && currentDate.getFullYear() === today.getFullYear();
+    if (isToday) {
+      dayCell.classList.add("today");
+    }
+
+    var numSpan = document.createElement("span");
+    numSpan.className = "day-num";
+    numSpan.innerText = day;
+    dayCell.appendChild(numSpan);
+
+    var iso = formatDateISO(currentDate);
+    var shiftValue = (valueMap[iso] || "").trim();
+    var category = getShiftCategory(shiftValue);
+    var label = getCategoryLabel(category, shiftValue);
+    var badgeClass = getCategoryBadgeClass(category);
+
+    var textEl = document.createElement("div");
+    textEl.className = "day-shift-text " + badgeClass;
+    textEl.innerText = label;
+    dayCell.appendChild(textEl);
+
+    var dotsContainer = document.createElement("div");
+    dotsContainer.className = "day-dots-container";
+    var dot = document.createElement("div");
+    dot.className = "day-dot";
+    dot.style.backgroundColor = getDotColorHex(category);
+    dotsContainer.appendChild(dot);
+    dayCell.appendChild(dotsContainer);
+
+    if (isToday || (!defaultSelectedDate && day === 1)) {
+      defaultSelectedCell = dayCell;
+      defaultSelectedDate = new Date(currentDate);
+      defaultSelectedValue = shiftValue;
+    }
+
+    (function(cell, date, val) {
+      cell.onclick = function() {
+        selectVehicleCalendarDay(date, val, cell);
+      };
+    })(dayCell, new Date(currentDate), shiftValue);
+
+    grid.appendChild(dayCell);
+  }
+
+  if (defaultSelectedCell) {
+    selectVehicleCalendarDay(defaultSelectedDate, defaultSelectedValue, defaultSelectedCell);
+  }
+}
+
+function selectVehicleCalendarDay(dateObj, shiftValue, cellElement) {
+  var cells = document.querySelectorAll("#vehicleCalendarGrid .calendar-day");
+  cells.forEach(function(c) {
+    c.classList.remove("active-selected");
+  });
+
+  cellElement.classList.add("active-selected");
+
+  var options = { weekday: "long", day: "numeric", month: "long", year: "numeric" };
+  var formattedTitle = dateObj.toLocaleDateString("es-ES", options);
+  document.getElementById("vehicleDetailDateDisplay").innerText = formattedTitle;
+
+  var contentEl = document.getElementById("vehicleDetailValueDisplay");
+  var cleanShift = shiftValue.trim() !== "" ? shiftValue : "Libre";
+  contentEl.innerText = cleanShift;
+
+  var category = getShiftCategory(shiftValue);
+  contentEl.style.borderLeft = "4px solid " + getDotColorHex(category);
+}
+
+function openVehicleModal(dateObj, shiftValue) {
+  var options = { weekday: "long", day: "numeric", month: "long", year: "numeric" };
+  var formattedTitle = dateObj.toLocaleDateString("es-ES", options);
+
+  document.getElementById("modalDateTitle").innerText = formattedTitle;
+  document.getElementById("modalWorkerName").innerText = selectedVehicle ? selectedVehicle.primaryLabel : "Vehículo";
+
+  var cleanShift = shiftValue.trim() !== "" ? shiftValue : "Libre / Sin actividad";
+  document.getElementById("modalShiftValue").innerText = cleanShift;
+
+  document.getElementById("detailModal").classList.add("open");
 }
 
 /**
